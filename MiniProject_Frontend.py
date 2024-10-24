@@ -1,220 +1,196 @@
 from tkinter import *
-import tkinter.messagebox
-import MiniProject_Backend
+from tkinter import messagebox
+from MiniProject_Backend import *
 
-class Movie:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Online Movie Ticket Booking System")
-        self.root.geometry("1200x700")
-        self.root.config(bg="black")
-        self.root.resizable(True, True)
+def get_selected_row(event):
+    global selected_tuple
+    if list1.curselection():
+        index = list1.curselection()[0]
+        selected_tuple = list1.get(index)
+        e1.delete(0, END)
+        e1.insert(END, selected_tuple[0])  # Movie_ID
+        e2.delete(0, END)
+        e2.insert(END, selected_tuple[1])  # Movie_Name
+        e3.delete(0, END)
+        e3.insert(END, selected_tuple[2])  # Release_Date
+        e4.delete(0, END)
+        e4.insert(END, selected_tuple[3])  # Director_Name
+        e5.delete(0, END)
+        e5.insert(END, selected_tuple[4])  # Casts
+        e6.delete(0, END)
+        e6.insert(END, selected_tuple[5])  # Budget
+        e7.delete(0, END)
+        e7.insert(END, selected_tuple[6])  # Duration
+        e8.delete(0, END)
+        e8.insert(END, selected_tuple[7])  # Rating
 
-        Movie_Name = StringVar()
-        Movie_ID = StringVar()
-        Release_Date = StringVar()
-        Director = StringVar()
-        Cast = StringVar()
-        Budget = StringVar()
-        Duration = StringVar()
-        Rating = StringVar()
+def view_command():
+    list1.delete(0, END)
+    for row in ViewMovieData():
+        list1.insert(END, row)
 
-        # Functions
-        def iExit():
-            iExit = tkinter.messagebox.askyesno("Online Movie Ticket Booking System", "Are you sure you want to exit?")
-            if iExit > 0:
-                root.destroy()
-            return
+def search_command():
+    list1.delete(0, END)
+    for row in SearchMovieData(Movie_ID_text.get(), Movie_Name_text.get()):
+        list1.insert(END, row)
 
-        def clcdata():
-            self.txtMovie_ID.delete(0, END)
-            self.txtMovie_Name.delete(0, END)
-            self.txtRelease_Date.delete(0, END)
-            self.txtDirector.delete(0, END)
-            self.txtCast.delete(0, END)
-            self.txtBudget.delete(0, END)
-            self.txtRating.delete(0, END)
-            self.txtDuration.delete(0, END)
+def add_command():
+    AddMovieRec(Movie_ID_text.get(), Movie_Name_text.get(), Release_Date_text.get(), Director_text.get(), Cast_text.get(), Budget_text.get(), Duration_text.get(), Rating_text.get())
+    list1.delete(0, END)
+    list1.insert(END, (Movie_ID_text.get(), Movie_Name_text.get(), Release_Date_text.get(), Director_text.get(), Cast_text.get(), Budget_text.get(), Duration_text.get(), Rating_text.get()))
 
-        def adddata():
-            if len(Movie_ID.get()) != 0:
-                try:
-                    MiniProject_Backend.AddMovieRec(Movie_ID.get(), Movie_Name.get(), Release_Date.get(),
-                                                    Director.get(), Cast.get(), Budget.get(), Duration.get(), Rating.get())
-                    disdata()  # Refresh the listbox after adding a new record
-                    tkinter.messagebox.showinfo("Success", "Record has been inserted")
-                except sqlite3.IntegrityError:
-                    tkinter.messagebox.showerror("Error", "Movie ID must be unique")
+def delete_command():
+    DeleteMovieRec(selected_tuple[0])
+    view_command()
 
-        def disdata():
-            MovieList.delete(0, END)
-            for row in MiniProject_Backend.ViewMovieData():
-                movie_details = f"ID: {row[1]}, Name: {row[2]}, Release Date: {row[3]}, Director: {row[4]}, Cast: {row[5]}, Budget: {row[6]}, Duration: {row[7]}, Rating: {row[8]}"
-                MovieList.insert(END, movie_details)
+def update_command():
+    if 'selected_tuple' in globals():
+        UpdateMovieData(selected_tuple[0], Movie_ID_text.get(), Movie_Name_text.get(), Release_Date_text.get(), Director_text.get(), Cast_text.get(), Budget_text.get(), Duration_text.get(), Rating_text.get())
+        view_command()
 
-        def movierec(event):
-            global sd
-            searchmovie = MovieList.curselection()[0]
-            sd = MovieList.get(searchmovie).split(", ")
+def close_command():
+    window.destroy()
 
-            self.txtMovie_ID.delete(0, END)
-            self.txtMovie_ID.insert(END, sd[0].split(": ")[1])
-            self.txtMovie_Name.delete(0, END)
-            self.txtMovie_Name.insert(END, sd[1].split(": ")[1])
-            self.txtRelease_Date.delete(0, END)
-            self.txtRelease_Date.insert(END, sd[2].split(": ")[1])
-            self.txtDirector.delete(0, END)
-            self.txtDirector.insert(END, sd[3].split(": ")[1])
-            self.txtCast.delete(0, END)
-            self.txtCast.insert(END, sd[4].split(": ")[1])
-            self.txtBudget.delete(0, END)
-            self.txtBudget.insert(END, sd[5].split(": ")[1])
-            self.txtDuration.delete(0, END)
-            self.txtDuration.insert(END, sd[6].split(": ")[1])
-            self.txtRating.delete(0, END)
-            self.txtRating.insert(END, sd[7].split(": ")[1])
+def book_movie():
+    movie_name = movie_var.get()
+    seat_number = seat_var.get()
+    customer_name = customer_name_var.get()
+    
+    if book_seat(movie_name, seat_number, customer_name):
+        messagebox.showinfo("Success", f"Seat {seat_number} booked for {movie_name}")
+    else:
+        messagebox.showerror("Error", "Seat already booked or invalid selection")
 
-        def deldata():
-            if len(Movie_ID.get()) != 0:
-                MiniProject_Backend.DeleteMovieRec(sd[0].split(": ")[1])
-                clcdata()
-                disdata()
-                tkinter.messagebox.showinfo("Success", "Record has been deleted")
+def print_booking():
+    customer_name = customer_name_var.get()
+    bookings = get_booking_details(customer_name)
+    if bookings:
+        booking_details = "\n".join([f"Movie: {b[1]}, Seat: {b[2]}, Date: {b[4]}" for b in bookings])
+        messagebox.showinfo("Booking Details", booking_details)
+    else:
+        messagebox.showinfo("No Bookings", "No bookings found for this customer")
 
-        def searchdb():
-            MovieList.delete(0, END)
-            for row in MiniProject_Backend.SearchMovieData(Movie_ID.get(), Movie_Name.get(), Release_Date.get(),
-                                                           Director.get(), Cast.get(), Budget.get(), Duration.get(), Rating.get()):
-                movie_details = f"ID: {row[1]}, Name: {row[2]}, Release Date: {row[3]}, Director: {row[4]}, Cast: {row[5]}, Budget: {row[6]}, Duration: {row[7]}, Rating: {row[8]}"
-                MovieList.insert(END, movie_details)
+def view_all_bookings():
+    bookings = get_all_bookings()
+    if bookings:
+        booking_details = "\n".join([f"Movie: {b[1]}, Seat: {b[2]}, Customer: {b[3]}, Date: {b[4]}" for b in bookings])
+        messagebox.showinfo("All Bookings", booking_details)
+    else:
+        messagebox.showinfo("No Bookings", "No bookings found")
 
-        def searchByName():
-            MovieList.delete(0, END)
-            for row in MiniProject_Backend.SearchMovieByName(Movie_Name.get()):
-                movie_details = f"ID: {row[1]}, Name: {row[2]}, Release Date: {row[3]}, Director: {row[4]}, Cast: {row[5]}, Budget: {row[6]}, Duration: {row[7]}, Rating: {row[8]}"
-                MovieList.insert(END, movie_details)
+window = Tk()
+window.wm_title("Movie Store")
 
-        def updata():
-            if len(Movie_ID.get()) != 0:
-                MiniProject_Backend.DeleteMovieRec(sd[0].split(": ")[1])
-            if len(Movie_ID.get()) != 0:
-                MiniProject_Backend.AddMovieRec(Movie_ID.get(), Movie_Name.get(), Release_Date.get(),
-                                                Director.get(), Cast.get(), Budget.get(), Duration.get(), Rating.get())
-                disdata()  # Refresh the listbox after updating the record
-                tkinter.messagebox.showinfo("Success", "Record has been updated")
+l1 = Label(window, text="Movie ID")
+l1.grid(row=0, column=0)
 
-        # Frames
-        MainFrame = Frame(self.root, bg="black")
-        MainFrame.grid(sticky="nsew")
-        self.root.grid_rowconfigure(0, weight=1)
-        self.root.grid_columnconfigure(0, weight=1)
+l2 = Label(window, text="Movie Name")
+l2.grid(row=0, column=2)
 
-        TFrame = Frame(MainFrame, bg="black", relief=RIDGE)
-        TFrame.grid(row=0, column=0, sticky="ew")
-        MainFrame.grid_columnconfigure(0, weight=1)
+l3 = Label(window, text="Release Date")
+l3.grid(row=1, column=0)
 
-        self.TFrame = Label(TFrame, font=('Arial', 30, 'bold'), text="ONLINE MOVIE TICKET BOOKING SYSTEM", bg="black", fg="orange", wraplength=1100)
-        self.TFrame.grid(pady=10)
+l4 = Label(window, text="Director")
+l4.grid(row=1, column=2)
 
-        BFrame = Frame(MainFrame, bg="black", relief=RIDGE)
-        BFrame.grid(row=2, column=0, sticky="ew", pady=10)
+l5 = Label(window, text="Cast")
+l5.grid(row=2, column=0)
 
-        DFrame = Frame(MainFrame, bg="black", relief=RIDGE)
-        DFrame.grid(row=1, column=0, sticky="nsew", pady=10)
-        MainFrame.grid_rowconfigure(1, weight=1)
+l6 = Label(window, text="Budget")
+l6.grid(row=2, column=2)
 
-        DFrameL = LabelFrame(DFrame, bg="black", relief=RIDGE, font=('Arial', 12, 'bold'), text="Movie Info", fg="white")
-        DFrameL.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
-        DFrame.grid_columnconfigure(0, weight=3)
-        DFrame.grid_rowconfigure(0, weight=1)
+l7 = Label(window, text="Duration")
+l7.grid(row=3, column=0)
 
-        DFrameR = LabelFrame(DFrame, bg="black", relief=RIDGE, font=('Arial', 12, 'bold'), text="Movie Details", fg="white")
-        DFrameR.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
-        DFrame.grid_columnconfigure(1, weight=1)
+l8 = Label(window, text="Rating")
+l8.grid(row=3, column=2)
 
-        # Labels & Entry Box
-        entry_width = 30
+Movie_ID_text = StringVar()
+e1 = Entry(window, textvariable=Movie_ID_text)
+e1.grid(row=0, column=1)
 
-        self.lblMovie_ID = Label(DFrameL, font=('Arial', 12, 'bold'), text="Movie ID:", padx=2, pady=2, bg="black", fg="orange")
-        self.lblMovie_ID.grid(row=0, column=0, sticky=W)
-        self.txtMovie_ID = Entry(DFrameL, font=('Arial', 12, 'bold'), textvariable=Movie_ID, width=entry_width, bg="black", fg="white")
-        self.txtMovie_ID.grid(row=0, column=1)
+Movie_Name_text = StringVar()
+e2 = Entry(window, textvariable=Movie_Name_text)
+e2.grid(row=0, column=3)
 
-        self.lblMovie_Name = Label(DFrameL, font=('Arial', 12, 'bold'), text="Movie Name:", padx=2, pady=2, bg="black", fg="orange")
-        self.lblMovie_Name.grid(row=1, column=0, sticky=W)
-        self.txtMovie_Name = Entry(DFrameL, font=('Arial', 12, 'bold'), textvariable=Movie_Name, width=entry_width, bg="black", fg="white")
-        self.txtMovie_Name.grid(row=1, column=1)
+Release_Date_text = StringVar()
+e3 = Entry(window, textvariable=Release_Date_text)
+e3.grid(row=1, column=1)
 
-        self.lblRelease_Date = Label(DFrameL, font=('Arial', 12, 'bold'), text="Release Date:", padx=2, pady=2, bg="black", fg="orange")
-        self.lblRelease_Date.grid(row=2, column=0, sticky=W)
-        self.txtRelease_Date = Entry(DFrameL, font=('Arial', 12, 'bold'), textvariable=Release_Date, width=entry_width, bg="black", fg="white")
-        self.txtRelease_Date.grid(row=2, column=1)
+Director_text = StringVar()
+e4 = Entry(window, textvariable=Director_text)
+e4.grid(row=1, column=3)
 
-        self.lblDirector = Label(DFrameL, font=('Arial', 12, 'bold'), text="Director:", padx=2, pady=2, bg="black", fg="orange")
-        self.lblDirector.grid(row=3, column=0, sticky=W)
-        self.txtDirector = Entry(DFrameL, font=('Arial', 12, 'bold'), textvariable=Director, width=entry_width, bg="black", fg="white")
-        self.txtDirector.grid(row=3, column=1)
+Cast_text = StringVar()
+e5 = Entry(window, textvariable=Cast_text)
+e5.grid(row=2, column=1)
 
-        self.lblCast = Label(DFrameL, font=('Arial', 12, 'bold'), text="Cast:", padx=2, pady=2, bg="black", fg="orange")
-        self.lblCast.grid(row=4, column=0, sticky=W)
-        self.txtCast = Entry(DFrameL, font=('Arial', 12, 'bold'), textvariable=Cast, width=entry_width, bg="black", fg="white")
-        self.txtCast.grid(row=4, column=1)
+Budget_text = StringVar()
+e6 = Entry(window, textvariable=Budget_text)
+e6.grid(row=2, column=3)
 
-        self.lblBudget = Label(DFrameL, font=('Arial', 12, 'bold'), text="Budget:", padx=2, pady=2, bg="black", fg="orange")
-        self.lblBudget.grid(row=5, column=0, sticky=W)
-        self.txtBudget = Entry(DFrameL, font=('Arial', 12, 'bold'), textvariable=Budget, width=entry_width, bg="black", fg="white")
-        self.txtBudget.grid(row=5, column=1)
+Duration_text = StringVar()
+e7 = Entry(window, textvariable=Duration_text)
+e7.grid(row=3, column=1)
 
-        self.lblDuration = Label(DFrameL, font=('Arial', 12, 'bold'), text="Duration:", padx=2, pady=2, bg="black", fg="orange")
-        self.lblDuration.grid(row=6, column=0, sticky=W)
-        self.txtDuration = Entry(DFrameL, font=('Arial', 12, 'bold'), textvariable=Duration, width=entry_width, bg="black", fg="white")
-        self.txtDuration.grid(row=6, column=1)
+Rating_text = StringVar()
+e8 = Entry(window, textvariable=Rating_text)
+e8.grid(row=3, column=3)
 
-        self.lblRating = Label(DFrameL, font=('Arial', 12, 'bold'), text="Rating:", padx=2, pady=2, bg="black", fg="orange")
-        self.lblRating.grid(row=7, column=0, sticky=W)
-        self.txtRating = Entry(DFrameL, font=('Arial', 12, 'bold'), textvariable=Rating, width=entry_width, bg="black", fg="white")
-        self.txtRating.grid(row=7, column=1)
+list1 = Listbox(window, height=8, width=50)
+list1.grid(row=4, column=0, rowspan=6, columnspan=2)
 
-        # ListBox & ScrollBar
-        scrollbar = Scrollbar(DFrameR)
-        scrollbar.grid(row=0, column=1, sticky='ns')
+sb1 = Scrollbar(window)
+sb1.grid(row=4, column=2, rowspan=6)
 
-        MovieList = Listbox(DFrameR, width=100, height=16, font=('Arial', 12, 'bold'), yscrollcommand=scrollbar.set)
-        MovieList.bind('<<ListboxSelect>>', movierec)
-        MovieList.grid(row=0, column=0, padx=8)
-        scrollbar.config(command=MovieList.yview)
+list1.configure(yscrollcommand=sb1.set)
+sb1.configure(command=list1.yview)
 
-        # Buttons
-        btn_bg_color = "orange"
-        btn_fg_color = "black"
-        btn_font = ('Arial', 12, 'bold')
+list1.bind('<<ListboxSelect>>', get_selected_row)
 
-        self.btnAddNew = Button(BFrame, text="Add New", font=btn_font, height=1, width=10, bd=4, bg=btn_bg_color, fg=btn_fg_color, command=adddata)
-        self.btnAddNew.grid(row=0, column=0, padx=5, pady=10)
+b1 = Button(window, text="View all", width=12, command=view_command)
+b1.grid(row=4, column=3)
 
-        self.btnDisplay = Button(BFrame, text="Display", font=btn_font, height=1, width=10, bd=4, bg=btn_bg_color, fg=btn_fg_color, command=disdata)
-        self.btnDisplay.grid(row=0, column=1, padx=5, pady=10)
+b2 = Button(window, text="Search entry", width=12, command=search_command)
+b2.grid(row=5, column=3)
 
-        self.btnClear = Button(BFrame, text="Clear", font=btn_font, height=1, width=10, bd=4, bg=btn_bg_color, fg=btn_fg_color, command=clcdata)
-        self.btnClear.grid(row=0, column=2, padx=5, pady=10)
+b3 = Button(window, text="Add entry", width=12, command=add_command)
+b3.grid(row=6, column=3)
 
-        self.btnDelete = Button(BFrame, text="Delete", font=btn_font, height=1, width=10, bd=4, bg=btn_bg_color, fg=btn_fg_color, command=deldata)
-        self.btnDelete.grid(row=0, column=3, padx=5, pady=10)
+b4 = Button(window, text="Update", width=12, command=update_command)
+b4.grid(row=7, column=3)
 
-        self.btnSearch = Button(BFrame, text="Search", font=btn_font, height=1, width=10, bd=4, bg=btn_bg_color, fg=btn_fg_color, command=searchdb)
-        self.btnSearch.grid(row=0, column=4, padx=5, pady=10)
+b5 = Button(window, text="Delete", width=12, command=delete_command)
+b5.grid(row=8, column=3)
 
-        self.btnSearchByName = Button(BFrame, text="Search by Name", font=btn_font, height=1, width=15, bd=4, bg=btn_bg_color, fg=btn_fg_color, command=searchByName)
-        self.btnSearchByName.grid(row=0, column=5, padx=5, pady=10)
+b6 = Button(window, text="Close", width=12, command=close_command)
+b6.grid(row=9, column=3)
 
-        self.btnUpdate = Button(BFrame, text="Update", font=btn_font, height=1, width=10, bd=4, bg=btn_bg_color, fg=btn_fg_color, command=updata)
-        self.btnUpdate.grid(row=0, column=6, padx=5, pady=10)
+# New elements for booking
+l9 = Label(window, text="Book Upcoming Movie")
+l9.grid(row=10, column=0, columnspan=2)
 
-        self.btnExit = Button(BFrame, text="Exit", font=btn_font, height=1, width=10, bd=4, bg=btn_bg_color, fg=btn_fg_color, command=iExit)
-        self.btnExit.grid(row=0, column=7, padx=5, pady=10)
+movie_var = StringVar()
+movie_var.set("Select Movie")
+movie_options = OptionMenu(window, movie_var, "Joker: Folie à Deux", "The Beast Within", "The Batman Part II")
+movie_options.grid(row=11, column=0)
 
+seat_var = IntVar()
+seat_var.set(1)
+seat_options = OptionMenu(window, seat_var, *range(1, 11))
+seat_options.grid(row=11, column=1)
 
-if __name__ == '__main__':
-    root = Tk()
-    application = Movie(root)
-    root.mainloop()
+customer_name_var = StringVar()
+e9 = Entry(window, textvariable=customer_name_var)
+e9.grid(row=11, column=2)
+
+b7 = Button(window, text="Book Seat", width=12, command=book_movie)
+b7.grid(row=11, column=3)
+
+b8 = Button(window, text="Print Booking", width=12, command=print_booking)
+b8.grid(row=12, column=3)
+
+b9 = Button(window, text="View All Bookings", width=15, command=view_all_bookings)
+b9.grid(row=13, column=3)
+
+window.mainloop()

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMDB Top 9 Movie Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .upcoming-movies {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 20px;
+        }
+        .movie {
+            flex: 1 1 calc(33.333% - 20px);
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .movie:hover {
+            transform: scale(1.05);
+        }
+        .movie img {
+            width: 100%;
+            height: auto;
+        }
+        .movie-details {
+            padding: 20px;
+        }
+        .trailer {
+            background-color: #e74c3c;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .trailer:hover {
+            background-color: #c0392b;
+        }
+        iframe {
+            width: 100%;
+            height: 315px;
+            border: none;
+        }
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+        select, input[type="text"], input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        input[type="submit"]:hover {
+            background-color: #2980b9;
+        }
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Recently Released Top 9 Movie Details</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Movie ID</th>
+                <th>Movie Name</th>
+                <th>Release Date</th>
+                <th>Director</th>
+                <th>Cast</th>
+                <th>Budget (Million)</th>
+                <th>Duration (Min)</th>
+                <th>Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movie in movies %}
+            <tr>
+                <td>{{ movie['Movie_ID'] }}</td>
+                <td>{{ movie['Movie_Name'] }}</td>
+                <td>{{ movie['Release_Date'] }}</td>
+                <td>{{ movie['Director_Name'] }}</td>
+                <td>{{ movie['Casts'] }}</td>
+                <td>{{ movie['Budget'] }}</td>
+                <td>{{ movie['Duration'] }}</td>
+                <td>{{ movie['Rating'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Upcoming Movies</h2>
+    <div class="upcoming-movies">
+        <div class="movie">
+            <img src="{{ url_for('static', filename='images/movie1_poster.png') }}" alt="Joker: Folie à Deux Poster">
+            <div class="movie-details">
+                <h3>Joker: Folie à Deux</h3>
+                <p><strong>Category:</strong> Crime/Drama</p>
+                <p><strong>Director:</strong> Todd Phillips</p>
+                <p><strong>Stars:</strong> Joaquin Phoenix, Catherine Keener, Brendan Gleeson</p>
+                <p><strong>Release Date:</strong> October 4, 2024</p>
+                <p><strong>Budget:</strong> $20000 million</p>
+                <p><strong>Storyline:</strong> Failed comedian Arthur Fleck meets the love of his life, Harley Quinn, while in Arkham State Hospital.</p>
+                <p><strong>Watch Trailer:</strong></p>
+                <div class="trailer">
+                    
+                    <iframe src="https://www.youtube.com/embed/_OKAwz2MsJs?si=Z6OWwT7PgpHiXjNB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+
+        <div class="movie">
+            <img src="{{ url_for('static', filename='images/movie2_poster.png') }}" alt="The Beast Within Poster">
+            <div class="movie-details">
+                <h3>The Beast Within</h3>
+                <p><strong>Category:</strong> Action/Crime</p>
+                <p><strong>Director:</strong> Eli Roth</p>
+                <p><strong>Stars:</strong> Ken Duken, Armin Mueller-Stahl, Andre Hennicke</p>
+                <p><strong>Release Date:</strong> November 15, 2024</p>
+                <p><strong>Budget:</strong> $30000 million</p>
+                <p><strong>Storyline:</strong> When car dealer Mickey is framed for a murder, he has to find the real killer before the local lawmen find him.</p>
+                <p><strong>Watch Trailer:</strong></p>
+                <div class="trailer">
+                    
+                    <iframe src="https://www.youtube.com/embed/wKIIMA-4GuU?si=Q6YR8oYnn3LH7NNS" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="movie">
+            <img src="{{ url_for('static', filename='images/movie3_poster.jpg') }}" alt="Shang-Chi 2 Poster">
+            <div class="movie-details">
+                <h3>Shang-Chi 2</h3>
+                <p><strong>Category:</strong> Action/Adventure</p>
+                <p><strong>Director:</strong> Destin Daniel Cretton</p>
+                <p><strong>Stars:</strong> Simu Liu, Awkwafina, Tony Leung</p>
+                <p><strong>Release Date:</strong> March 22, 2025</p>
+                <p><strong>Budget:</strong> $40000 million</p>
+                <p><strong>Storyline:</strong> Shang-Chi must team up with a young, reckless kung fu prodigy to stop a global crime network from obtaining the secrets of the Ten Rings.</p>
+                <p><strong>Watch Trailer:</strong></p>
+                <div class="trailer">
+                    
+                    <iframe src="https://www.youtube.com/embed/iPU5nzMxhww?si=hCNRNHhZ0dZ2wRgu" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <form action="{{ url_for('book_movie') }}" method="POST">
+            <h2>Book a Movie Seat</h2>
+            <label for="movie_name">Movie Name:</label>
+            <select id="movie_name" name="movie_name">
+                {% for movie in movies %}
+                <option value="{{ movie['Movie_Name'] }}">{{ movie['Movie_Name'] }}</option>
+                {% endfor %}
+            </select>
+            <label for="seat_number">Seat Number:</label>
+            <input type="text" id="seat_number" name="seat_number" required>
+            <label for="customer_name">Your Name:</label>
+            <input type="text" id="customer_name" name="customer_name" required>
+            <input type="submit" value="Book Seat">
+        </form>
+
+        <form action="{{ url_for('print_booking') }}" method="POST">
+            <h2>Print Booking</h2>
+            <label for="customer_name">Your Name:</label>
+            <input type="text" id="customer_name" name="customer_name" required>
+            <input type="submit" value="Print Booking">
+        </form>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class=flashes>
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+</body>
+</html>
